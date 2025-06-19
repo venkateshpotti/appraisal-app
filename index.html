@@ -263,7 +263,7 @@
             // --- Function to fetch and display appraisals ---
             const fetchAppraisals = async () => {
                 try {
-                    const response = await fetch('/api/appraisals');
+                    const response = await fetch('http://localhost:3000/api/appraisals');
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
                     }
