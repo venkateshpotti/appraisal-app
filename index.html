@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Appraisal Form</title>
+
+    <!-- All CSS is embedded here -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+        :root {
+            --primary-color: #6a40d5;
+            --secondary-color: #4467de;
+            --background-light: #fdfcff;
+            --border-color: #e0d8f0;
+            --text-dark: #333;
+            --text-light: #555;
+            --star-color: #ffc107;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f9;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Decorative circles in the header */
+        .header::before, .header::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            z-index: 1;
+        }
+
+        .header::before {
+            width: 200px;
+            height: 200px;
+            top: -50px;
+            left: -50px;
+        }
+
+        .header::after {
+            width: 150px;
+            height: 150px;
+            bottom: -75px;
+            right: 50px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .main-container {
+            display: flex;
+            gap: 30px;
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .form-container {
+            flex: 1;
+            background-color: var(--background-light);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            align-self: flex-start; /* Keeps it from stretching vertically */
+        }
+
+        .display-container {
+            flex: 1.2;
+            max-height: calc(100vh - 180px); /* Adjust height based on header */
+            overflow-y: auto;
+            padding-right: 15px; /* Space for scrollbar */
+        }
+
+        /* Custom scrollbar for the display area */
+        .display-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .display-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .display-container::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 4px;
+        }
+        .display-container::-webkit-scrollbar-thumb:hover {
+            background: #aaa;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(106, 64, 213, 0.2);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: white;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .appraisal-card {
+            background-color: var(--background-light);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .appraisal-card p {
+            margin-bottom: 8px;
+            color: var(--text-light);
+        }
+
+        .appraisal-card b {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-right: 5px;
+        }
+        
+        .rating-stars {
+            color: var(--star-color);
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <h1>Employee Appraisal Form</h1>
+        <p>Submit your appraisal feedback below.</p>
+    </header>
+
+    <main class="main-container">
+        <!-- Left Side: Form -->
+        <div class="form-container">
+            <form id="appraisalForm">
+                <div class="form-group">
+                    <label for="employeeName">Employee Name:</label>
+                    <input type="text" id="employeeName" placeholder="Enter Employee Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="employeeId">Employee ID:</label>
+                    <input type="text" id="employeeId" placeholder="Enter Employee ID" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskName">Task Name:</label>
+                    <input type="text" id="taskName" placeholder="Enter Task Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="feedback">Feedback:</label>
+                    <textarea id="feedback" placeholder="Enter reason" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="rating">Rating:</label>
+                    <select id="rating" required>
+                        <option value="">Select Rating</option>
+                        <option value="1">1 Star</option>
+                        <option value="2">2 Stars</option>
+                        <option value="3">3 Stars</option>
+                        <option value="4">4 Stars</option>
+                        <option value="5">5 Stars</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn">Submit</button>
+            </form>
+        </div>
+
+        <!-- Right Side: Display Appraisals -->
+        <div class="display-container" id="appraisalList">
+            <!-- Appraisals will be dynamically loaded here -->
+        </div>
+    </main>
+
+    <!-- All JavaScript is embedded here -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('appraisalForm');
+            const appraisalList = document.getElementById('appraisalList');
+
+            // --- Function to generate star ratings ---
+            const generateStars = (rating) => {
+                let stars = '';
+                for (let i = 0; i < 5; i++) {
+                    stars += i < rating ? '⭐' : '☆';
+                }
+                return `<span class="rating-stars">${stars}</span>`;
+            };
+
+            // --- Function to fetch and display appraisals ---
+            const fetchAppraisals = async () => {
+                try {
+                    const response = await fetch('/api/appraisals');
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    const appraisals = await response.json();
+
+                    // Clear current list
+                    appraisalList.innerHTML = '';
+
+                    // Populate list with new data
+                    if (appraisals.length === 0) {
+                        appraisalList.innerHTML = '<p>No appraisals submitted yet.</p>';
+                    } else {
+                        appraisals.forEach(app => {
+                            const card = document.createElement('div');
+                            card.className = 'appraisal-card';
+                            card.innerHTML = `
+                                <p><b>Employee Name:</b> ${app.employee_name}</p>
+                                <p><b>Employee ID:</b> ${app.employee_id}</p>
+                                <p><b>Task Name:</b> ${app.task_name}</p>
+                                <p><b>Feedback:</b> ${app.feedback}</p>
+                                <p><b>Rating:</b> ${generateStars(app.rating)}</p>
+                            `;
+                            appraisalList.appendChild(card);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error fetching appraisals:', error);
+                    appraisalList.innerHTML = '<p style="color: red;">Failed to load appraisals.</p>';
+                }
+            };
+
+            // --- Event listener for form submission ---
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault(); // Prevent default form submission
+
+                const appraisalData = {
+                    employee_name: document.getElementById('employeeName').value,
+                    employee_id: document.getElementById('employeeId').value,
+                    task_name: document.getElementById('taskName').value,
+                    feedback: document.getElementById('feedback').value,
+                    rating: document.getElementById('rating').value
+                };
+
+                try {
+                    const response = await fetch('/api/appraisals', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(appraisalData)
+                    });
+
+                    if (response.ok) {
+                        form.reset(); // Clear the form
+                        fetchAppraisals(); // Refresh the list
+                    } else {
+                        const errorData = await response.json();
+                        alert(`Error: ${errorData.msg || 'Failed to submit appraisal.'}`);
+                    }
+                } catch (error) {
+                    console.error('Error submitting form:', error);
+                    alert('An error occurred. Please try again.');
+                }
+            });
+
+            // --- Initial fetch of appraisals when the page loads ---
+            fetchAppraisals();
+        });
+    </script>
+</body>
+</html>
