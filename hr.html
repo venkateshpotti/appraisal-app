@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR - Appraisal Dashboard</title>
+
+    <!-- All CSS is embedded here -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+        :root {
+            --primary-color: #6a40d5;
+            --secondary-color: #4467de;
+            --background-light: #fdfcff;
+            --border-color: #e0d8f0;
+            --text-dark: #333;
+            --text-light: #555;
+            --star-color: #ffc107;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Poppins', sans-serif; background-color: #f4f4f9; color: var(--text-dark); line-height: 1.6; }
+        .header { background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%); color: white; padding: 30px 40px; text-align: center; position: relative; overflow: hidden; }
+        .header::before, .header::after { content: ''; position: absolute; border-radius: 50%; background-color: rgba(255, 255, 255, 0.1); z-index: 1; }
+        .header::before { width: 200px; height: 200px; top: -50px; left: -50px; }
+        .header::after { width: 150px; height: 150px; bottom: -75px; right: 50px; }
+        .header h1 { font-size: 2.5rem; font-weight: 700; position: relative; z-index: 2; }
+        .header p { font-size: 1.1rem; position: relative; z-index: 2; }
+        .main-container { display: flex; justify-content: center; padding: 30px; max-width: 1000px; margin: 0 auto; }
+        .display-container { flex: 1; max-height: calc(100vh - 180px); overflow-y: auto; padding-right: 15px; }
+        .display-container::-webkit-scrollbar { width: 8px; }
+        .display-container::-webkit-scrollbar-track { background: #f1f1f1; }
+        .display-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+        .display-container::-webkit-scrollbar-thumb:hover { background: #aaa; }
+        .appraisal-card { background-color: var(--background-light); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); }
+        .appraisal-card p { margin-bottom: 8px; color: var(--text-light); }
+        .appraisal-card b { font-weight: 600; color: var(--text-dark); margin-right: 5px; }
+        .rating-stars { color: var(--star-color); font-size: 1.5rem; }
+
+        /* --- NEW STYLES FOR ACTIONS --- */
+        .appraisal-actions {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .action-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+        .action-btn:hover {
+            opacity: 0.85;
+        }
+        .approve-btn {
+            background-color: var(--success-color);
+        }
+        .reject-btn {
+            background-color: var(--danger-color);
+        }
+        .status-display {
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 5px;
+            color: white;
+            font-size: 0.9rem;
+        }
+        .status-approved {
+            background-color: var(--success-color);
+        }
+        .status-rejected {
+            background-color: var(--danger-color);
+        }
+        .status-pending {
+            background-color: #6c757d; /* Gray for pending */
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <h1>HR - Appraisal Dashboard</h1>
+        <p>View and manage employee appraisals below.</p>
+    </header>
+
+    <main class="main-container">
+        <div class="display-container" id="appraisalList">
+            <!-- Appraisals will be dynamically loaded here -->
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const appraisalList = document.getElementById('appraisalList');
+
+            const generateStars = (rating) => {
+                let stars = '';
+                for (let i = 0; i < 5; i++) {
+                    stars += i < rating ? '⭐' : '☆';
+                }
+                return `<span class="rating-stars">${stars}</span>`;
+            };
+
+            const renderActions = (appraisal) => {
+                if (appraisal.status === 'Pending') {
+                    return `
+                        <button class="action-btn approve-btn" data-id="${appraisal.id}" data-action="Approved">Approve</button>
+                        <button class="action-btn reject-btn" data-id="${appraisal.id}" data-action="Rejected">Reject</button>
+                    `;
+                }
+                const statusClass = `status-${appraisal.status.toLowerCase()}`;
+                return `<b>Status:</b> <span class="status-display ${statusClass}">${appraisal.status}</span>`;
+            };
+            
+            const fetchAppraisals = async () => {
+                try {
+                    // MODIFIED: Use the full, absolute URL to the server
+                    const response = await fetch('http://localhost:3000/api/appraisals');
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    const appraisals = await response.json();
+                    
+                    appraisalList.innerHTML = '';
+
+                    if (appraisals.length === 0) {
+                        appraisalList.innerHTML = '<p>No appraisals submitted yet.</p>';
+                    } else {
+                        appraisals.forEach(app => {
+                            const card = document.createElement('div');
+                            card.className = 'appraisal-card';
+                            card.innerHTML = `
+                                <p><b>Employee Name:</b> ${app.employee_name}</p>
+                                <p><b>Employee ID:</b> ${app.employee_id}</p>
+                                <p><b>Task Name:</b> ${app.task_name}</p>
+                                <p><b>Feedback:</b> ${app.feedback}</p>
+                                <p><b>Rating:</b> ${generateStars(app.rating)}</p>
+                                <div class="appraisal-actions">
+                                    ${renderActions(app)}
+                                </div>
+                            `;
+                            appraisalList.appendChild(card);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error fetching appraisals:', error);
+                    appraisalList.innerHTML = '<p style="color: red;">Failed to load appraisals.</p>';
+                }
+            };
+
+            const updateStatus = async (id, action) => {
+                try {
+                    // MODIFIED: Use the full, absolute URL to the server
+                    const response = await fetch(`http://localhost:3000/api/appraisals/${id}/status`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: action })
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.msg || 'Failed to update status');
+                    }
+                    fetchAppraisals();
+                } catch (error) {
+                    console.error('Error updating status:', error);
+                    alert(`An error occurred: ${error.message}`);
+                }
+            };
+
+            appraisalList.addEventListener('click', (e) => {
+                const target = e.target;
+                if (target.matches('.action-btn')) {
+                    const id = target.dataset.id;
+                    const action = target.dataset.action;
+                    if (id && action) {
+                        updateStatus(id, action);
+                    }
+                }
+            });
+
+            fetchAppraisals();
+        });
+    </script>
+</body>
+</html>
