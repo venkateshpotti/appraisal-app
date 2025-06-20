@@ -15,8 +15,6 @@
             --background-light: #fdfcff;
             --border-color: #e0d8f0;
             --text-dark: #333;
-            --text-light: #555;
-            --star-color: #ffc107;
         }
 
         * {
@@ -77,44 +75,24 @@
             z-index: 2;
         }
 
+        /* MODIFIED: Center the form container */
         .main-container {
             display: flex;
-            gap: 30px;
+            justify-content: center; /* Center the single item */
             padding: 30px;
             max-width: 1400px;
             margin: 0 auto;
         }
 
+        /* MODIFIED: Set a max-width for the form so it doesn't get too wide */
         .form-container {
-            flex: 1;
+            flex-basis: 700px; /* Define a base width */
+            max-width: 100%; /* Ensure it's responsive */
             background-color: var(--background-light);
             padding: 25px;
             border-radius: 12px;
             border: 1px solid var(--border-color);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            align-self: flex-start; /* Keeps it from stretching vertically */
-        }
-
-        .display-container {
-            flex: 1.2;
-            max-height: calc(100vh - 180px); /* Adjust height based on header */
-            overflow-y: auto;
-            padding-right: 15px; /* Space for scrollbar */
-        }
-
-        /* Custom scrollbar for the display area */
-        .display-container::-webkit-scrollbar {
-            width: 8px;
-        }
-        .display-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        .display-container::-webkit-scrollbar-thumb {
-            background: #ccc;
-            border-radius: 4px;
-        }
-        .display-container::-webkit-scrollbar-thumb:hover {
-            background: #aaa;
         }
 
         .form-group {
@@ -170,31 +148,6 @@
             background-color: var(--primary-color);
             color: white;
         }
-
-        .appraisal-card {
-            background-color: var(--background-light);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        .appraisal-card p {
-            margin-bottom: 8px;
-            color: var(--text-light);
-        }
-
-        .appraisal-card b {
-            font-weight: 600;
-            color: var(--text-dark);
-            margin-right: 5px;
-        }
-        
-        .rating-stars {
-            color: var(--star-color);
-            font-size: 1.5rem;
-        }
     </style>
 </head>
 <body>
@@ -205,7 +158,7 @@
     </header>
 
     <main class="main-container">
-        <!-- Left Side: Form -->
+        <!-- The form is now the only item in the main container -->
         <div class="form-container">
             <form id="appraisalForm">
                 <div class="form-group">
@@ -239,65 +192,17 @@
             </form>
         </div>
 
-        <!-- Right Side: Display Appraisals -->
-        <div class="display-container" id="appraisalList">
-            <!-- Appraisals will be dynamically loaded here -->
-        </div>
+        <!-- REMOVED: The display container for previous appraisals is gone -->
+
     </main>
 
     <!-- All JavaScript is embedded here -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('appraisalForm');
-            const appraisalList = document.getElementById('appraisalList');
 
-            // --- Function to generate star ratings ---
-            const generateStars = (rating) => {
-                let stars = '';
-                for (let i = 0; i < 5; i++) {
-                    stars += i < rating ? '⭐' : '☆';
-                }
-                return `<span class="rating-stars">${stars}</span>`;
-            };
-
-            // --- Function to fetch and display appraisals ---
-            const fetchAppraisals = async () => {
-                try {
-                    const response = await fetch('http://localhost:3000/api/appraisals');
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    const appraisals = await response.json();
-
-                    // Clear current list
-                    appraisalList.innerHTML = '';
-
-                    // Populate list with new data
-                    if (appraisals.length === 0) {
-                        appraisalList.innerHTML = '<p>No appraisals submitted yet.</p>';
-                    } else {
-                        appraisals.forEach(app => {
-                            const card = document.createElement('div');
-                            card.className = 'appraisal-card';
-                            card.innerHTML = `
-                                <p><b>Employee Name:</b> ${app.employee_name}</p>
-                                <p><b>Employee ID:</b> ${app.employee_id}</p>
-                                <p><b>Task Name:</b> ${app.task_name}</p>
-                                <p><b>Feedback:</b> ${app.feedback}</p>
-                                <p><b>Rating:</b> ${generateStars(app.rating)}</p>
-                            `;
-                            appraisalList.appendChild(card);
-                        });
-                    }
-                } catch (error) {
-                    console.error('Error fetching appraisals:', error);
-                    appraisalList.innerHTML = '<p style="color: red;">Failed to load appraisals.</p>';
-                }
-            };
-
-            // --- Event listener for form submission ---
             form.addEventListener('submit', async (e) => {
-                e.preventDefault(); // Prevent default form submission
+                e.preventDefault(); 
 
                 const appraisalData = {
                     employee_name: document.getElementById('employeeName').value,
@@ -308,7 +213,8 @@
                 };
 
                 try {
-                    const response = await fetch('/api/appraisals', {
+                    // MODIFIED: Use the full, absolute URL to the server
+                    const response = await fetch('http://localhost:3000/api/appraisals', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -317,8 +223,8 @@
                     });
 
                     if (response.ok) {
-                        form.reset(); // Clear the form
-                        fetchAppraisals(); // Refresh the list
+                        form.reset(); 
+                        alert('Appraisal submitted successfully!');
                     } else {
                         const errorData = await response.json();
                         alert(`Error: ${errorData.msg || 'Failed to submit appraisal.'}`);
@@ -328,10 +234,8 @@
                     alert('An error occurred. Please try again.');
                 }
             });
-
-            // --- Initial fetch of appraisals when the page loads ---
-            fetchAppraisals();
         });
     </script>
+
 </body>
 </html>
